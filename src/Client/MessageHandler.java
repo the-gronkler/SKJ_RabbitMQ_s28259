@@ -1,20 +1,17 @@
-package Client;
+package client;
 
 import com.rabbitmq.client.*;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 public class MessageHandler {
-    public static final Map<String, String> SUBJECTS = Map.of(
-            "Capitalise", "CL",
-            "Reverse", "RV",
-            "Get byte value", "BV"
-    );
-    private final static String QUEUE_NAME = "hello";
+    public static final String
+            QUEUE_NAME = "queue_s28259",
+            USERNAME = "client",
+            PASSWORD = "password";
 
     private final ClientGUI ui;
     private final Channel channel;
@@ -27,10 +24,13 @@ public class MessageHandler {
         // set up connection
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
+//        factory.setUsername(USERNAME);
+//        factory.setPassword(PASSWORD);
+
         try  {
             Connection connection = factory.newConnection();
             channel = connection.createChannel();
-            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+            channel.queueDeclare(QUEUE_NAME   , false, false, false, null);
 
             // Set up reply queue
             replyQueueName = channel.queueDeclare().getQueue();
@@ -40,7 +40,6 @@ public class MessageHandler {
             throw new RuntimeException(e);
         }
 
-        // Set up properties for reply-to and correlation ID
         props = new AMQP.BasicProperties.Builder()
                 .replyTo(replyQueueName)
                 .correlationId(java.util.UUID.randomUUID().toString())
@@ -55,19 +54,19 @@ public class MessageHandler {
                     byte[] body )
             {
                 String response = new String(body, StandardCharsets.UTF_8);
-                ui.displayMessage(ClientGUI.SERVER , response);
+                ui.displayMessage(ClientGUI.SERVER, response);
             }
         };
     }
 
-    public void sendMessage(String message, String subjectCode){
+    public void sendMessage(String subjectCode, String message){
         byte[] messageBytes = (subjectCode + message).getBytes(StandardCharsets.UTF_8);
 
         try {
             channel.basicPublish(
-                    "", QUEUE_NAME, props, messageBytes
-            );
-            // Start consuming messages from the reply queue
+                    "", QUEUE_NAME, props, messageBytes );
+
+            // Start consuming messages from reply queue
             channel.basicConsume(replyQueueName, true, consumer);
         }
         catch (IOException e) {
