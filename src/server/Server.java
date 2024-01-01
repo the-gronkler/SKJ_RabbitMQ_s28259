@@ -10,10 +10,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 public class Server {
-    private final static String QUEUE_NAME = "queue_s28259";
+    private final static String
+            QUEUE_NAME = "queue_s28259",
+            USERNAME = "client", 
+            PASSWORD = "password";
+    
     private Channel channel;
 
-    private final static String USERNAME = "client", PASSWORD = "password";
+    private final static String ;
 
     public static void main(String[] args) throws IOException {
         Server server = new Server();
