@@ -7,30 +7,40 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
-public class MessageHandler {
-    public static final String
-            QUEUE_NAME = "queue_s28259",
-            USERNAME = "client",
-            PASSWORD = "password";
 
-    private final ClientGUI ui;
+/**
+ * Handles communication with the RabbitMQ server for sending and receiving messages.
+ * <p>
+ * This class establishes a connection to the RabbitMQ server, sets up a message queue, and creates a reply queue.
+ * It provides methods for sending messages and handling incoming responses asynchronously.
+ */
+public class MessageHandler {
+    /**
+     * Constant representing the name of the message queue.
+     */
+    public static final String
+            QUEUE_NAME = "queue_s28259";
+
     private final Channel channel;
     private final String replyQueueName;
     private final DefaultConsumer consumer;
     private final AMQP.BasicProperties props;
 
+    /**
+     * Constructs a new instance of the {@code MessageHandler} class.
+     *
+     * @param ui The {@link ClientGUI} instance associated with this message handler.
+     *           Used for displaying server responses in the GUI.
+     */
     public MessageHandler(ClientGUI ui) {
-        this.ui = ui;
         // set up connection
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
-//        factory.setUsername(USERNAME);
-//        factory.setPassword(PASSWORD);
 
         try  {
             Connection connection = factory.newConnection();
             channel = connection.createChannel();
-            channel.queueDeclare(QUEUE_NAME   , false, false, false, null);
+            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
 
             // Set up reply queue
             replyQueueName = channel.queueDeclare().getQueue();
@@ -54,24 +64,26 @@ public class MessageHandler {
                     byte[] body )
             {
                 String response = new String(body, StandardCharsets.UTF_8);
-                ui.displayMessage(ClientGUI.SERVER, response);
+                SwingUtilities.invokeLater( () -> ui.displayMessage(ClientGUI.SERVER, response) );
             }
         };
     }
 
-    public void sendMessage(String subjectCode, String message){
+    /**
+     * Sends a message to the RabbitMQ server with the specified subject code and message content.
+     * The method also starts consuming messages from the reply queue asynchronously.
+     *
+     * @param subjectCode The two-letter code representing the message subject.
+     * @param message     The content of the message.
+     * @throws IOException If an error occurs while sending the message.
+     */
+    public void sendMessage(String subjectCode, String message) throws IOException {
         byte[] messageBytes = (subjectCode + message).getBytes(StandardCharsets.UTF_8);
 
-        try {
-            channel.basicPublish(
-                    "", QUEUE_NAME, props, messageBytes );
+        channel.basicPublish("", QUEUE_NAME, props, messageBytes );
 
-            // Start consuming messages from reply queue
-            channel.basicConsume(replyQueueName, true, consumer);
-        }
-        catch (IOException e) {
-            JOptionPane.showMessageDialog(ui,  "Sending message failed: " + e);
-            throw new RuntimeException(e);
-        }
+        // Start consuming messages from reply queue
+        channel.basicConsume(replyQueueName, true, consumer);
+
     }
 }

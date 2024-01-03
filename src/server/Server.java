@@ -9,24 +9,38 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Server-side component of the RabbitMQ project.
+ * <p>
+ * This class establishes a connection to <b>RabbitMQ Server</b>, sets up a message queue, and begins listening for incoming messages.
+ * Messages are processed based on their subject code, and a response is sent back to the client.
+ * The server runs indefinitely, waiting for messages to arrive.
+ */
 public class Server {
-    private final static String QUEUE_NAME = "queue_s28259";
-    private Channel channel;
+    /**
+     * Constant representing the name of the message queue.
+     */
+    private final static String
+            QUEUE_NAME = "queue_s28259";
 
-    private final static String USERNAME = "client", PASSWORD = "password";
+    private final Channel channel;
+    private final DeliverCallback deliverCallback;
 
     public static void main(String[] args) throws IOException {
         Server server = new Server();
-        server.establishConnection();
-        server.beginListening();
+        server.beginProcessing();
     }
 
-    private void establishConnection() {
+    /**
+     * Constructs a new instance of the {@code Server} class.
+     * <p>
+     * Sets up a connection to the RabbitMQ server, creates a channel, and declares the message queue.
+     * Also defines {@link Server#deliverCallback}  which uses {@link Server#processMessage(String)} to generate a response.
+     */
+    public Server(){
         // Set up connection
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
-//        factory.setUsername(USERNAME);
-//        factory.setPassword(PASSWORD);
 
         try {
             Connection connection = factory.newConnection();
@@ -39,12 +53,9 @@ public class Server {
         catch (IOException | TimeoutException e) {
             throw new RuntimeException(e);
         }
-    }
 
-    private void beginListening() throws IOException {
         // Set up a consumer to listen for messages
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-
+        deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
             System.out.println("Received message: " + message);
 
@@ -56,7 +67,16 @@ public class Server {
                     response.getBytes(StandardCharsets.UTF_8)
             );
         };
+    }
 
+    /**
+     * Begins processing incoming messages from the message queue.
+     * <p>
+     * Messages are processed asynchronously using {@link Server#deliverCallback}
+     *
+     * @throws IOException If an error occurs while waiting for messages.
+     */
+    public void beginProcessing() throws IOException {
         System.out.println("Server is waiting for messages.");
 
         // Consume messages from the queue
@@ -68,7 +88,20 @@ public class Server {
         while(true);
     }
 
-
+    /**
+     * Processes an incoming message based on its subject code.
+     * <p>
+     * Supported subject codes:
+     * <ul>
+     *     <li>"CL" - Capitalizes the content of the message.</li>
+     *     <li>"RV" - Reverses the content of the message.</li>
+     *     <li>"BV" - Concatenates, space-separated, the byte values of every character in the message</li>
+     * </ul>
+     * If the subject code is not recognized, returns a message indicating that the subject was not found.
+     *
+     * @param message The incoming message to be processed.
+     * @return The processed response based on the subject code.
+     */
     public static String processMessage(String message) {
         String subjectCode = message.substring(0, 2);
         String content = message.substring(2);

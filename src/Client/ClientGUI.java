@@ -7,14 +7,34 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * GUI class for the client application.
+ * <p>
+ * When instantiated, it provides a graphical interface in the form of a chat application.
+ * Allows the user to select a subject, type a message, and send it.
+ * <p>
+ * When the Enter key or the Send button are pressed, {@link MessageHandler#sendMessage(String, String)}
+ * is called on its {@code messageHandler} field, passing the two-letter code of the subject and the contents of the message.
+ */
 public class ClientGUI extends JFrame {
+    /**
+     * Constants representing sender names
+     **/
     public static final String
             CLIENT = "Client",
             SERVER = "Server";
 
+    /**
+     * Constant dictionary with:
+     * <ul>
+     *     <li>Key - subject description</li>
+     *     <li>Value - two-letter subject code</li>
+     * </ul>
+     **/
     public static final Map<String, String>
             SUBJECT_MAP = Map.of(
             "Capitalise", "CL",
@@ -24,12 +44,28 @@ public class ClientGUI extends JFrame {
     public static final Set<String>
             SUBJECT_NAMES = SUBJECT_MAP.keySet();
 
-    private final MessageHandler messageHandler;
 
+    private final MessageHandler messageHandler;
+    /**
+     *  Chat message display
+     **/
     private final JTextPane chatPane;
+    /**
+     *  Dropdown menu for selecting subject
+     **/
     private final JComboBox<String> subjectComboBox;
+    /**
+     *  Text field for entering message
+     **/
     private final JTextField messageField;
 
+    /**
+     * Constructor for the {@code ClientGUI} class.
+     * <p>
+     * Creates a {@code MessageHandler} instance and a window with the UI.
+     * <p>
+     * Strongly recommended to call this method on the AWT event dispatching thread, as per the Swing documentation.
+     */
     public ClientGUI( ){
         try {
             messageHandler = new MessageHandler(this);
@@ -84,6 +120,12 @@ public class ClientGUI extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Gets the text from the {@code messageField} and the subject code for the currently selected subject,
+     * then invokes {@link MessageHandler#sendMessage(String, String)} with these parameters.
+     * <p>
+     * If {@code messageField} is empty, nothing will happen.
+     */
     private void sendMessage(){
         String message =  messageField.getText();
         if (message.isEmpty())
@@ -95,10 +137,22 @@ public class ClientGUI extends JFrame {
 
         messageField.setText(null);
 
-        messageHandler.sendMessage(subjectCode, message);
-        this.displayMessage(CLIENT, message);
+        try {
+            messageHandler.sendMessage(subjectCode, message);
+        }
+        catch (IOException e) {
+            JOptionPane.showMessageDialog(this,  "Sending message failed: " + e);
+            throw new RuntimeException(e);
+        }
+
+        SwingUtilities.invokeLater( () -> this.displayMessage(CLIENT, message) );
     }
 
+    /**
+     * Displays a message with the passed parameters in the {@code chatPane}.
+     * <p>
+     * Also recommended to call this method on the AWT event dispatching thread, as per the Swing documentation.
+     */
     public void displayMessage(String sender, String message){
         Color color = switch (sender){
             case CLIENT -> Color.BLUE;
