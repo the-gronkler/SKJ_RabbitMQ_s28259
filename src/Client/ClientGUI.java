@@ -41,10 +41,16 @@ public class ClientGUI extends JFrame {
             "Reverse", "RV",
             "Get byte value", "BV"
     );
+
+    /**
+     * Constant set representing subject descriptions. Points to {@link ClientGUI#SUBJECT_MAP}.keySet()
+     */
     public static final Set<String>
             SUBJECT_NAMES = SUBJECT_MAP.keySet();
 
-
+    /**
+     *  {@link MessageHandler} for this class. Handles communication with the server
+     */
     private final MessageHandler messageHandler;
     /**
      *  Chat message display
@@ -149,9 +155,12 @@ public class ClientGUI extends JFrame {
     }
 
     /**
-     * Displays a message with the passed parameters in the {@code chatPane}.
+     * Displays a message with the passed parameters in the {@code chatPane} in the format
+     * "<b>sender:</b> message"
      * <p>
      * Also recommended to call this method on the AWT event dispatching thread, as per the Swing documentation.
+     * @param sender author of the message
+     * @param message message to be displayed
      */
     public void displayMessage(String sender, String message){
         Color color = switch (sender){

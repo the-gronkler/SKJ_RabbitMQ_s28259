@@ -21,9 +21,29 @@ public class MessageHandler {
     public static final String
             QUEUE_NAME = "queue_s28259";
 
+
+    /**
+     * The communication channel with <b>RabbitMQ Server</b>.
+     */
     private final Channel channel;
+    /**
+     * The name of the reply queue used for receiving responses from the server.
+     */
     private final String replyQueueName;
+    /**
+     * Consumer for handling incoming messages.
+     * Calls {@link ClientGUI#displayMessage(String, String)}
+     * with parameters:
+     * <ul>
+     *     <li>sender - {@link ClientGUI#SERVER}</li>
+     *     <li>message - {@link String} constructed from the recieved byte array</li>
+     * </ul>
+     */
     private final DefaultConsumer consumer;
+    /**
+     * Properties for outgoing messages.
+     * Contains the correlation ID and the name of the reply queue.
+     */
     private final AMQP.BasicProperties props;
 
     /**

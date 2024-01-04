@@ -10,34 +10,46 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Server-side component of the RabbitMQ project.
+ * Message handler for the server-side component of the RabbitMQ project.
  * <p>
  * This class establishes a connection to <b>RabbitMQ Server</b>, sets up a message queue, and begins listening for incoming messages.
  * Messages are processed based on their subject code, and a response is sent back to the client.
  * The server runs indefinitely, waiting for messages to arrive.
+ * <p>
+ * Note that this class requires a running instance of
+ * <a href="https://www.rabbitmq.com/download.html">RabbitMQ Server</a>
  */
-public class Server {
+public class ServerMessageHandler {
     /**
      * Constant representing the name of the message queue.
      */
     private final static String
             QUEUE_NAME = "queue_s28259";
 
+    /**
+     * The communication channel with <b>RabbitMQ Server</b>.
+     * <p>
+     * This channel is used to declare and interact with the message queue.
+     */
     private final Channel channel;
+    /**
+     * Callback function for handling incoming messages asynchronously.
+     * <p>
+     * The {@link DeliverCallback} is triggered when a message is delivered to the server.
+     * It processes the message using the {@link ServerMessageHandler#processMessage(String)} method,
+     * generates a response, and publishes the response back to the client.
+     */
     private final DeliverCallback deliverCallback;
 
-    public static void main(String[] args) throws IOException {
-        Server server = new Server();
-        server.beginProcessing();
-    }
 
     /**
      * Constructs a new instance of the {@code Server} class.
      * <p>
-     * Sets up a connection to the RabbitMQ server, creates a channel, and declares the message queue.
-     * Also defines {@link Server#deliverCallback}  which uses {@link Server#processMessage(String)} to generate a response.
+     * Sets up a connection to <b>RabbitMQ Server</b>, creates a channel, and declares the message queue.
+     * Also instantiates {@link ServerMessageHandler#deliverCallback}
+     * which uses {@link ServerMessageHandler#processMessage(String)} to generate a response.
      */
-    public Server(){
+    public ServerMessageHandler(){
         // Set up connection
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
@@ -72,7 +84,7 @@ public class Server {
     /**
      * Begins processing incoming messages from the message queue.
      * <p>
-     * Messages are processed asynchronously using {@link Server#deliverCallback}
+     * Messages are processed asynchronously using {@link ServerMessageHandler#deliverCallback}
      *
      * @throws IOException If an error occurs while waiting for messages.
      */
@@ -97,10 +109,10 @@ public class Server {
      *     <li>"RV" - Reverses the content of the message.</li>
      *     <li>"BV" - Concatenates, space-separated, the byte values of every character in the message</li>
      * </ul>
-     * If the subject code is not recognized, returns a message indicating that the subject was not found.
+     * If the subject code is not recognized, returns a string indicating that in plain text.
      *
-     * @param message The incoming message to be processed.
-     * @return The processed response based on the subject code.
+     * @param message The message to be processed, consisting of subject code concatenated with the content of the message.
+     * @return The response to the message.
      */
     public static String processMessage(String message) {
         String subjectCode = message.substring(0, 2);
@@ -126,7 +138,7 @@ public class Server {
 
             }
             default -> {
-                return "subject not found";
+                return "subject not recognised :(";
             }
         }
     }
