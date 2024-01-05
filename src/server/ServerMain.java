@@ -6,6 +6,9 @@ import java.io.IOException;
 /**
  * Main class for the server application. Instantiates a {@link ServerMessageHandler} object,
  * and calls {@link ServerMessageHandler#beginProcessing()} to begin consuming messages from the queue
+ * <p>
+ * Requires a running instance of
+ * <a href="https://www.rabbitmq.com/download.html">RabbitMQ Server</a>. Version 3.12.11 is preferred
  */
 public class ServerMain {
     /**

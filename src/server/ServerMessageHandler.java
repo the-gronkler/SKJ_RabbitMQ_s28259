@@ -17,7 +17,7 @@ import java.util.concurrent.TimeoutException;
  * The server runs indefinitely, waiting for messages to arrive.
  * <p>
  * Note that this class requires a running instance of
- * <a href="https://www.rabbitmq.com/download.html">RabbitMQ Server</a>
+ * <a href="https://www.rabbitmq.com/download.html">RabbitMQ Server</a>. Version 3.12.11 is preferred
  */
 public class ServerMessageHandler {
     /**
