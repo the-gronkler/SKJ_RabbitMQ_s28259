@@ -71,8 +71,8 @@ public class ClientGUI extends JFrame {
      * <p>
      * Creates a {@link MessageHandler} instance and a window with the UI.
      * <p>
-     * Strongly recommended to call this method on the AWT event dispatching thread
-     * managed by {@link EventQueue}, as per the {@link javax.swing} threading policy.
+     * Strongly recommended to call this method on the {@linkplain EventQueue AWT Event Dispatch Thread},
+     * as per the {@linkplain javax.swing Swing} threading policy.
      */
     public ClientGUI( ){
         try {
@@ -160,8 +160,9 @@ public class ClientGUI extends JFrame {
      * Displays a message with the passed parameters in the {@code chatPane} in the format
      * "<b>sender:</b> message"
      * <p>
-     * Also recommended to call this method on the AWT event dispatching thread
-     * managed by {@link EventQueue}, as per the {@link javax.swing} threading policy.
+     * Also recommended to call this method on the {@linkplain EventQueue AWT Event Dispatch Thread},
+     * as per the {@linkplain javax.swing Swing} threading policy.
+     *
      * @param sender author of the message. Recommended to use constants
      *      {@link ClientGUI#SERVER} and {@link ClientGUI#CLIENT} for best results
      * @param message message to be displayed
