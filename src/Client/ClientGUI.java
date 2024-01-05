@@ -22,7 +22,8 @@ import java.util.Set;
  */
 public class ClientGUI extends JFrame {
     /**
-     * Constants representing sender names
+     * Constant used for passing into the {@link ClientGUI#displayMessage(String, String)}
+     * method as the {@code sender} parameter
      **/
     public static final String
             CLIENT = "Client",
@@ -66,11 +67,12 @@ public class ClientGUI extends JFrame {
     private final JTextField messageField;
 
     /**
-     * Constructor for the {@code ClientGUI} class.
+     * Constructor for the {@link ClientGUI} class.
      * <p>
-     * Creates a {@code MessageHandler} instance and a window with the UI.
+     * Creates a {@link MessageHandler} instance and a window with the UI.
      * <p>
-     * Strongly recommended to call this method on the AWT event dispatching thread, as per the Swing documentation.
+     * Strongly recommended to call this method on the AWT event dispatching thread
+     * managed by {@link EventQueue}, as per the {@link javax.swing} threading policy.
      */
     public ClientGUI( ){
         try {
@@ -127,10 +129,10 @@ public class ClientGUI extends JFrame {
     }
 
     /**
-     * Gets the text from the {@code messageField} and the subject code for the currently selected subject,
+     * Gets the text from {@link #messageField} and the subject code for the currently selected subject,
      * then invokes {@link MessageHandler#sendMessage(String, String)} with these parameters.
      * <p>
-     * If {@code messageField} is empty, nothing will happen.
+     * If {@link #messageField} is empty, nothing will happen.
      */
     private void sendMessage(){
         String message =  messageField.getText();
@@ -158,8 +160,10 @@ public class ClientGUI extends JFrame {
      * Displays a message with the passed parameters in the {@code chatPane} in the format
      * "<b>sender:</b> message"
      * <p>
-     * Also recommended to call this method on the AWT event dispatching thread, as per the Swing documentation.
-     * @param sender author of the message
+     * Also recommended to call this method on the AWT event dispatching thread
+     * managed by {@link EventQueue}, as per the {@link javax.swing} threading policy.
+     * @param sender author of the message. Recommended to use constants
+     *      {@link ClientGUI#SERVER} and {@link ClientGUI#CLIENT} for best results
      * @param message message to be displayed
      */
     public void displayMessage(String sender, String message){

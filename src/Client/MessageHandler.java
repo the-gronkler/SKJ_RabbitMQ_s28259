@@ -9,9 +9,9 @@ import java.util.concurrent.TimeoutException;
 
 
 /**
- * Handles communication with the RabbitMQ server for sending and receiving messages.
+ * Handles communication with the <b>RabbitMQ Server</b>, for sending and receiving messages.
  * <p>
- * This class establishes a connection to the RabbitMQ server, sets up a message queue, and creates a reply queue.
+ * This class establishes a connection to the <b>RabbitMQ Server</b>, sets up a message queue, and creates a reply queue.
  * It provides methods for sending messages and handling incoming responses asynchronously.
  */
 public class MessageHandler {
